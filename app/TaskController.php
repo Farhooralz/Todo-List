@@ -148,6 +148,37 @@ class TaskController
     }
 
     public function delete() {
+        if (empty($this->request->session['user_id'])) {
+            header("Location: /login");
+            exit;
+        }
 
+        $userId = (int) $this->request->session['user_id'];
+        $id = (int) ($this->request->body['id'] ?? 0);
+
+        if ($id <= 0) {
+            $this->request->session['error'] = "Invalid task.";
+            header("Location: /tasks");
+            exit;
+        }
+
+        try {
+            $stmt = $this->pdo->prepare("
+                DELETE FROM tasks 
+                WHERE id = :id AND user_id = :user_id
+            ");
+            $stmt->execute([
+                ':id' => $id,
+                ':user_id' => $userId
+            ]);
+        } catch (PDOException $e) {
+            $this->request->session['error'] = "Could not delete task.";
+            header("Location: /tasks");
+            exit;
+        }
+
+        $this->request->session['success'] = "Task deleted.";
+        header("Location: /tasks");
+        exit;
     }
 }
