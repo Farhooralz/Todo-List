@@ -74,11 +74,45 @@ class TaskController
     }
 
     public function update() {
+        if (empty($this->request->session["user_id"])) {
+            header("Location: /login");
+            exit;
+        }
 
+        $userId = (int) $this->request->session["user_id"];
+        $id = (int) ($this->request->body["id"] ?? 0);
+        $task = trim($this->request->body["task"] ?? 0);
+
+        if ($id <= 0 || $task === '') {
+            $this->request->session["error"] = "Invalid task data.";
+            header("Location: /tasks");
+            exit;
+        }
+
+        try {
+            $stmt = $this->pdo->prepare("
+                UPDATE tasks 
+                SET task = :task 
+                WHERE id = :id AND user_id = :user_id
+            ");
+            $stmt->execute([
+                ':task' => $task,
+                ':id' => $id,
+                ':user_id' => $userId
+            ]);
+        } catch (PDOException $e) {
+            $this->request->session['error'] = "Could not update task.";
+            header("Location: /tasks");
+            exit;
+        }
+
+        $this->request->session["success"] = "Task updated.";
+        header("Location: /tasks");
+        exit;
     }
 
     public function done() {
-
+        
     }
 
     public function delete() {
