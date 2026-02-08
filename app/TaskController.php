@@ -3,12 +3,15 @@
 namespace App;
 
 use PDO;
+use App\Request;
 use PDOException;
 
 class TaskController
 {
 
     private PDO $pdo;
+
+    private Request $request;
 
     public function __construct() {
         $dbPath = __DIR__ . "/../database/app.db";
@@ -19,11 +22,11 @@ class TaskController
     }
 
     public function list(): array {
-        if (empty($_SESSION['user_id'])) {
+        if (empty($this->request->session['user_id'])) {
             return [];
         }
 
-        $userId = (int) $_SESSION['user_id'];
+        $userId = (int) $this->request->session['user_id'];
 
         $stmt = $this->pdo->prepare(
             'SELECT id, task, done, created_at 
@@ -35,7 +38,7 @@ class TaskController
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
-    
+
     public function add() {
 
     }
