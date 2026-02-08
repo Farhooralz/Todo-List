@@ -208,6 +208,11 @@ $username = $_SESSION['username'] ?? 'Guest';
       line-height: 1.5;
     }
 
+    .task-text.done{
+      text-decoration: line-through;
+      color: rgba(17,24,39,.4);
+    }
+
     .task-actions{
       display: inline-flex;
       gap: 6px;
@@ -329,14 +334,16 @@ $username = $_SESSION['username'] ?? 'Guest';
       <?php if (!empty($tasks) && is_array($tasks)): ?>
         <?php foreach ($tasks as $task): ?>
           <li class="task-item">
-            <div class="task-text">
+            <div class="task-text <?php echo $task['done'] ? 'done' : ''; ?>">
               <?php echo htmlspecialchars($task['task'], ENT_QUOTES, 'UTF-8'); ?>
             </div>
             <div class="task-actions">
-              <form action="/tasks/done" method="post" style="margin:0;">
-                <input type="hidden" name="id" value="<?php echo (int)$task['id']; ?>">
-                <button class="btn-icon" type="submit">Done</button>
-              </form>
+              <?php if (!$task['done']): ?>
+                <form action="/tasks/done" method="post" style="margin:0;">
+                  <input type="hidden" name="id" value="<?php echo (int)$task['id']; ?>">
+                  <button class="btn-icon" type="submit">Done</button>
+                </form>
+              <?php endif; ?>
               <form action="/tasks/delete" method="post" style="margin:0;">
                 <input type="hidden" name="id" value="<?php echo (int)$task['id']; ?>">
                 <button class="btn-icon danger" type="submit">Delete</button>
