@@ -42,18 +42,59 @@ if ($uri === '/register' && $method === 'POST') {
     exit;
 }
 
-if ($uri === '/logout') {
-    $authController->logout();
-    exit;
-}
-
 if ($uri === '/tasks' && $method === 'GET') {
     if (empty($_SESSION['user_id'])) {
         header('Location: /login');
         exit;
     }
 
+    $tasks = $taskController->list();
     require __DIR__ . '/../views/tasks.php';
+    exit;
+}
+
+if ($uri === '/tasks' && $method === 'POST') {
+    if (empty($_SESSION['user_id'])) {
+        header('Location: /login');
+        exit;
+    }
+
+    $taskController->add();
+    exit;
+}
+
+if ($uri === '/tasks/update' && $method === 'POST') {
+    if (empty($_SESSION['user_id'])) {
+        header('Location: /login');
+        exit;
+    }
+
+    $taskController->update();
+    exit;
+}
+
+if ($uri === '/tasks/done' && $method === 'POST') {
+    if (empty($_SESSION['user_id'])) {
+        header('Location: /login');
+        exit;
+    }
+
+    $taskController->done();
+    exit;
+}
+
+if ($uri === '/tasks/delete' && $method === 'POST') {
+    if (empty($_SESSION['user_id'])) {
+        header('Location: /login');
+        exit;
+    }
+
+    $taskController->delete();
+    exit;
+}
+
+if ($uri === '/logout') {
+    $authController->logout();
     exit;
 }
 

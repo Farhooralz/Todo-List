@@ -17,8 +17,27 @@ class TaskController
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->pdo->exec('PRAGMA foreign_keys = ON;');
     }
+
+    public function list(): array {
+        if (empty($_SESSION['user_id'])) {
+            return [];
+        }
+
+        $userId = (int) $_SESSION['user_id'];
+
+        $stmt = $this->pdo->prepare(
+            'SELECT id, task, done, created_at 
+             FROM tasks 
+             WHERE user_id = :user_id 
+             ORDER BY created_at DESC, id DESC'
+        );
+        $stmt->execute([':user_id' => $userId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+    
     public function add() {
-        
+
     }
 
     public function update() {
