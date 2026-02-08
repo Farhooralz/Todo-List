@@ -27,4 +27,8 @@ $pdo->exec("
     );
 ");
 
+$pdo->exec("
+    ALTER TABLE tasks ADD done INTEGER NOT NULL  DEFAULT 0;
+");
+
 echo "Migration done.\n";
