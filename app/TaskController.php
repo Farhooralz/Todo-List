@@ -112,7 +112,39 @@ class TaskController
     }
 
     public function done() {
-        
+        if (empty($this->request->session["user_id"])) {
+            header("Location: /login");
+            exit;
+        }
+
+        $userId = (int) $this->request->session['user_id'];
+        $id = (int) ($this->request->body['id'] ?? 0);
+
+        if ($id <= 0) {
+            $this->request->session['error'] = "Invalid task.";
+            header("Location: /tasks");
+            exit;
+        }
+
+        try {
+            $stmt = $this->pdo->prepare("
+                UPDATE tasks 
+                SET done = 1 
+                WHERE id = :id AND user_id = :user_id
+            ");
+            $stmt->execute([
+                ':id' => $id,
+                ':user_id' => $userId
+            ]);
+        } catch (PDOException $e) {
+            $this->request->session['error'] = "Could not mark task as done.";
+            header("Location: /tasks");
+            exit;
+        }
+
+        $this->request->session['success'] = 'Task marked as done.';
+        header('Location: /tasks');
+        exit;
     }
 
     public function delete() {
