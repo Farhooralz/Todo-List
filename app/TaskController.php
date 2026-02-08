@@ -40,7 +40,37 @@ class TaskController
     }
 
     public function add() {
+        if (empty($this->request->session['user_id'])) {
+            header("Location: /login");
+            exit;
+        }
 
+        $userId = (int) $this->request->session['user_id'];
+        $task = trim($this->request->body['task'] ?? '');
+
+        if ($task === '') {
+            $this->request->session['error'] = 'Task text is required.';
+            header("Location: /tasks");
+            exit;
+        }
+
+        try {
+            $stmt = $this->pdo->prepare(
+                "INSERT INTO tasks (user_id, task) VALUES (:user_id, :task)"
+            );
+            $stmt->execute([
+                ':uesr_id' => $userId,
+                ':task' => $task
+            ]);
+        } catch (PDOException $e) {
+            $this->request->session["error"] = "Could not add task.";
+            header("Location: /tasks");
+            exit;
+        }
+
+        $this->request->session['success'] = 'Task added.';
+        header("Location: /tasks");
+        exit;
     }
 
     public function update() {
