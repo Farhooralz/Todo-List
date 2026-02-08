@@ -3,8 +3,9 @@
 namespace App;
 
 use PDO;
-use App\Request;
 use PDOException;
+use App\Request;
+use App\Session;
 
 class TaskController
 {
@@ -19,14 +20,16 @@ class TaskController
         $this->pdo = new PDO("sqlite:" . $dbPath);
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->pdo->exec('PRAGMA foreign_keys = ON;');
+
+        $this->request = new Request();
     }
 
     public function list(): array {
-        if (empty($this->request->session['user_id'])) {
+        if (empty(Session::get('user_id'))) {
             return [];
         }
 
-        $userId = (int) $this->request->session['user_id'];
+        $userId = (int) Session::get('user_id');
 
         $stmt = $this->pdo->prepare(
             'SELECT id, task, done, created_at 
@@ -40,16 +43,16 @@ class TaskController
     }
 
     public function add() {
-        if (empty($this->request->session['user_id'])) {
+        if (empty(Session::get('user_id'))) {
             header("Location: /login");
             exit;
         }
 
-        $userId = (int) $this->request->session['user_id'];
+        $userId = (int) Session::get('user_id');
         $task = trim($this->request->body['task'] ?? '');
 
         if ($task === '') {
-            $this->request->session['error'] = 'Task text is required.';
+            Session::set('error', 'Task text is required.');
             header("Location: /tasks");
             exit;
         }
@@ -59,32 +62,32 @@ class TaskController
                 "INSERT INTO tasks (user_id, task) VALUES (:user_id, :task)"
             );
             $stmt->execute([
-                ':uesr_id' => $userId,
+                ':user_id' => $userId,
                 ':task' => $task
             ]);
         } catch (PDOException $e) {
-            $this->request->session["error"] = "Could not add task.";
+            Session::set('error', "Could not add task.");
             header("Location: /tasks");
             exit;
         }
 
-        $this->request->session['success'] = 'Task added.';
+        Session::set('success', 'Task added.');
         header("Location: /tasks");
         exit;
     }
 
     public function update() {
-        if (empty($this->request->session["user_id"])) {
+        if (empty(Session::get('user_id'))) {
             header("Location: /login");
             exit;
         }
 
-        $userId = (int) $this->request->session["user_id"];
+        $userId = (int) Session::get('user_id');
         $id = (int) ($this->request->body["id"] ?? 0);
         $task = trim($this->request->body["task"] ?? 0);
 
         if ($id <= 0 || $task === '') {
-            $this->request->session["error"] = "Invalid task data.";
+            Session::set("error", "Invalid task data.");
             header("Location: /tasks");
             exit;
         }
@@ -101,27 +104,27 @@ class TaskController
                 ':user_id' => $userId
             ]);
         } catch (PDOException $e) {
-            $this->request->session['error'] = "Could not update task.";
+            Session::set('error', "Could not update task.");
             header("Location: /tasks");
             exit;
         }
 
-        $this->request->session["success"] = "Task updated.";
+        Session::set('success', "Task updated.");
         header("Location: /tasks");
         exit;
     }
 
     public function done() {
-        if (empty($this->request->session["user_id"])) {
+        if (empty(Session::get('user_id'))) {
             header("Location: /login");
             exit;
         }
 
-        $userId = (int) $this->request->session['user_id'];
+        $userId = (int) Session::get('user_id');
         $id = (int) ($this->request->body['id'] ?? 0);
 
         if ($id <= 0) {
-            $this->request->session['error'] = "Invalid task.";
+            Session::set('error', "Invalid task.");
             header("Location: /tasks");
             exit;
         }
@@ -137,27 +140,27 @@ class TaskController
                 ':user_id' => $userId
             ]);
         } catch (PDOException $e) {
-            $this->request->session['error'] = "Could not mark task as done.";
+            Session::set('error', "Could not mark task as done.");
             header("Location: /tasks");
             exit;
         }
 
-        $this->request->session['success'] = 'Task marked as done.';
+        Session::set('success', 'Task marked as done.');
         header('Location: /tasks');
         exit;
     }
 
     public function delete() {
-        if (empty($this->request->session['user_id'])) {
+        if (empty(Session::get('user_id'))) {
             header("Location: /login");
             exit;
         }
 
-        $userId = (int) $this->request->session['user_id'];
+        $userId = (int) Session::get('user_id');
         $id = (int) ($this->request->body['id'] ?? 0);
 
         if ($id <= 0) {
-            $this->request->session['error'] = "Invalid task.";
+            Session::set('error', "Invalid task.");
             header("Location: /tasks");
             exit;
         }
@@ -172,12 +175,12 @@ class TaskController
                 ':user_id' => $userId
             ]);
         } catch (PDOException $e) {
-            $this->request->session['error'] = "Could not delete task.";
+            Session::set('error', "Could not delete task.");
             header("Location: /tasks");
             exit;
         }
 
-        $this->request->session['success'] = "Task deleted.";
+        Session::set('success', "Task deleted.");
         header("Location: /tasks");
         exit;
     }

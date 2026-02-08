@@ -46,10 +46,10 @@ class Authcontroller
             exit;
         }
 
-        $this->request->session["user_id"] = (int) $user["id"];
-        $this->request->session["username"] = $user["username"];
+        Session::set('user_id', $user['id']);
+        Session::set('username', $user['username']);
 
-        header("Location: /");
+        header("Location: /tasks");
         exit;
     }
 

@@ -9,6 +9,7 @@ require __DIR__ . "/../vendor/autoload.php";
 use App\AuthController;
 use App\Request;
 use App\TaskController;
+use App\Session;
 
 $request = new Request();
 $uri = parse_url($request->uri, PHP_URL_PATH);
@@ -43,7 +44,7 @@ if ($uri === '/register' && $method === 'POST') {
 }
 
 if ($uri === '/tasks' && $method === 'GET') {
-    if (empty($_SESSION['user_id'])) {
+    if (empty(Session::get('user_id'))) {
         header('Location: /login');
         exit;
     }
@@ -54,7 +55,7 @@ if ($uri === '/tasks' && $method === 'GET') {
 }
 
 if ($uri === '/tasks' && $method === 'POST') {
-    if (empty($_SESSION['user_id'])) {
+    if (empty(Session::get('user_id'))) {
         header('Location: /login');
         exit;
     }
@@ -64,7 +65,7 @@ if ($uri === '/tasks' && $method === 'POST') {
 }
 
 if ($uri === '/tasks/update' && $method === 'POST') {
-    if (empty($_SESSION['user_id'])) {
+    if (empty(Session::get('user_id'))) {
         header('Location: /login');
         exit;
     }
@@ -74,7 +75,7 @@ if ($uri === '/tasks/update' && $method === 'POST') {
 }
 
 if ($uri === '/tasks/done' && $method === 'POST') {
-    if (empty($_SESSION['user_id'])) {
+    if (empty(Session::get('user_id'))) {
         header('Location: /login');
         exit;
     }
@@ -84,7 +85,7 @@ if ($uri === '/tasks/done' && $method === 'POST') {
 }
 
 if ($uri === '/tasks/delete' && $method === 'POST') {
-    if (empty($_SESSION['user_id'])) {
+    if (empty(Session::get('user_id'))) {
         header('Location: /login');
         exit;
     }
