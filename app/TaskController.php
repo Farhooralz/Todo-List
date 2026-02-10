@@ -24,7 +24,7 @@ class TaskController
         $this->request = new Request();
     }
 
-    public function list(): array {
+    public function list() {
         if (empty(Session::get('user_id'))) {
             return [];
         }
@@ -39,7 +39,9 @@ class TaskController
         );
         $stmt->execute([':user_id' => $userId]);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+        return require_once __DIR__ . "/../views/tasks.php";
     }
 
     public function add() {

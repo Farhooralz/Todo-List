@@ -7,7 +7,7 @@ use PDOException;
 use App\Session;
 use App\Request;
 
-class Authcontroller
+class AuthController
 {
     private PDO $pdo;
 
@@ -20,6 +20,10 @@ class Authcontroller
         $this->pdo = new PDO("sqlite:" . $dbPath);
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->pdo->exec('PRAGMA foreign_keys = ON;');
+    }
+
+    public function loginForm(){
+        return require_once __DIR__ . "/../views/login.php";
     }
 
     public function login(): void {
@@ -53,6 +57,10 @@ class Authcontroller
 
         header("Location: /tasks");
         exit;
+    }
+
+    public function registerForm() {
+        return require_once __DIr__ . "/../views/register.php";
     }
 
     public function register(): void
