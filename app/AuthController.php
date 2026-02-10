@@ -4,6 +4,8 @@ namespace App;
 
 use PDO;
 use PDOException;
+use App\Session;
+use App\Request;
 
 class Authcontroller
 {
@@ -25,7 +27,7 @@ class Authcontroller
         $password = $this->request->body["password"] ?? "";
 
         if ($username === "" || $password === "") {
-            $this->request->session["error"] = "Username and Password are required";
+            Session::set("error", "Username and Password are required");
             header("Location: /login");
             exit;
         }
@@ -35,13 +37,13 @@ class Authcontroller
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$user) {
-            $this->request->session["error"] = "Invalid credentials.";
+            Session::set("error", "Invalid credentials.");
             header("Location: /login");
             exit;
         }
 
         if (!password_verify($password, $user["password_hash"])) {
-            $this->request->session["error"] = "Invalid credentials";
+            Session::set("error", "Invalid credentials.");
             header("Location: /login");
             exit;
         }
@@ -60,13 +62,13 @@ class Authcontroller
         $passwordConfirmation = $this->request->body['password_confirmation'] ?? '';
 
         if ($username === '' || $password === '' || $passwordConfirmation === '') {
-            $this->request->session['error'] = 'All fields are required.';
+            Session::set("error", "All fields are required.");
             header('Location: /register');
             exit;
         }
 
         if ($password !== $passwordConfirmation) {
-            $this->request->session['error'] = 'Passwords do not match.';
+            Session::set("error", "Passwords do not match.");
             header('Location: /register');
             exit;
         }
@@ -76,7 +78,7 @@ class Authcontroller
         $existing = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($existing) {
-            $this->request->session['error'] = 'Username is already taken.';
+            Session::set("error", "Username is already taken.");
             header('Location: /register');
             exit;
         }
@@ -92,18 +94,17 @@ class Authcontroller
                 ':password_hash' => $hash,
             ]);
         } catch (PDOException $e) {
-            $this->request->session['error'] = 'Registration failed: ' . $e->getMessage();
+            Session::set("error", 'Registration failed: ' . $e->getMessage());
             header('Location: /register');
             exit;
         }
 
-        $this->request->session['success'] = 'Account created. Please log in.';
+        Session::set("success", "Account created. Please log in.");
         header('Location: /login');
         exit;
     }
 
     public function logout(): void {
-        $this->request->session = [];
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
             setcookie(
