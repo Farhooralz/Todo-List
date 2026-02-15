@@ -20,7 +20,6 @@ class Route
 
     public static function dispatch($method, $uri) {
         $method = strtoupper($method);
-        $uri = ltrim($uri, "/");
         
         if (!isset(static::$routes[$method][$uri])) {
             http_response_code(404);

@@ -343,6 +343,12 @@ $username = $_SESSION['username'] ?? 'Guest';
                   <input type="hidden" name="id" value="<?php echo (int)$task['id']; ?>">
                   <button class="btn-icon" type="submit">Done</button>
                 </form>
+                <form method="POST" action="/tasks/update" style="display: inline;">
+                    <input type="hidden" name="id" value="<?= $task['id'] ?>">
+                    <input type="text" name="task" value="<?= htmlspecialchars($task['task']) ?>" 
+                          style="width: 200px; border: 1px solid #ccc; padding: 2px;">
+                    <button type="submit" style="font-size: 12px;">Update</button>
+                </form>
               <?php endif; ?>
               <form action="/tasks/delete" method="post" style="margin:0;">
                 <input type="hidden" name="id" value="<?php echo (int)$task['id']; ?>">
